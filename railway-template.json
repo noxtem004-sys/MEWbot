@@ -1,0 +1,63 @@
+{
+  "name": "Telegram Meow License System",
+  "description": "Professional license/rental system with Telegram bot management",
+  "repository": "YOUR_GITHUB_REPO_URL",
+  "services": {
+    "license-server": {
+      "name": "License Server",
+      "plan": "hobby",
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "python backend/license_server.py",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      },
+      "env": {
+        "LICENSE_SERVER_SECRET_KEY": {
+          "description": "Secret key for HMAC signing (generate with: python -c \"import secrets; print(secrets.token_urlsafe(32))\")",
+          "required": true
+        },
+        "LICENSE_SERVER_HOST": {
+          "description": "Host to bind to",
+          "value": "0.0.0.0"
+        }
+      },
+      "healthcheck": {
+        "path": "/health",
+        "interval": 30
+      }
+    },
+    "license-bot": {
+      "name": "License Bot",
+      "plan": "hobby",
+      "build": {
+        "builder": "NIXPACKS"
+      },
+      "deploy": {
+        "startCommand": "python backend/license_bot.py",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      },
+      "env": {
+        "LICENSE_SERVER_SECRET_KEY": {
+          "description": "Same secret key as server",
+          "required": true
+        },
+        "LICENSE_BOT_TOKEN": {
+          "description": "Telegram bot token from @BotFather",
+          "required": true
+        },
+        "LICENSE_BOT_ADMIN_IDS": {
+          "description": "Comma-separated Telegram user IDs (from @userinfobot)",
+          "required": true
+        },
+        "LICENSE_SERVER_URL": {
+          "description": "URL of license-server service (will be: https://YOUR_DOMAIN.up.railway.app)",
+          "required": true
+        }
+      }
+    }
+  }
+}
